@@ -1,0 +1,38 @@
+# GitHub Actions - CI Preprocessing (ADVANCED)
+# Menjalankan skrip automate preprocessing setiap ada push / dijalankan manual,
+# lalu mengunggah folder hasil preprocessing sebagai artifact.
+name: Preprocessing CI
+
+on: [push, workflow_dispatch]
+
+jobs:
+  preprocessing:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Ambil kode dari repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Siapkan Python 3.12
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # 3. Install dependency yang dibutuhkan skrip preprocessing
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas==2.2.3 scikit-learn==1.5.2 numpy==1.26.4 joblib==1.4.2
+
+      # 4. Jalankan skrip automate preprocessing
+      - name: Run preprocessing automation
+        run: python preprocessing/automate_Dwi-Agni.py
+
+      # 5. Unggah folder hasil preprocessing sebagai artifact
+      - name: Upload preprocessing output
+        uses: actions/upload-artifact@v4
+        with:
+          name: preprocessing-output
+          path: preprocessing/pajak_daerah_preprocessing

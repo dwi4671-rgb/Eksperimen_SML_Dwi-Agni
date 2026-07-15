@@ -56,10 +56,11 @@ pip install -r requirements.txt
 
 ### 2. Menjalankan notebook eksperimen
 
-Buka notebook eksperimen (EDA + eksperimen preprocessing) dengan Jupyter:
+Buka notebook eksperimen (EDA + eksperimen preprocessing) di `preprocessing/Eksperimen_Dwi-Agni.ipynb`
+dengan Jupyter (notebook membaca `../pajak_daerah_raw.csv` relatif terhadap lokasinya):
 
 ```bash
-jupyter notebook
+jupyter notebook preprocessing/Eksperimen_Dwi-Agni.ipynb
 ```
 
 ### 3. Menjalankan skrip automate preprocessing
@@ -85,10 +86,11 @@ repo_eksperimen/
 ├── .github/
 │   └── workflows/
 │       └── preprocessing.yml          # CI: jalankan preprocessing + upload artifact
+├── pajak_daerah_raw.csv                # Dataset mentah (76.205 baris)
 ├── preprocessing/
-│   ├── automate_Dwi-Agni.py      # Skrip automate preprocessing
-│   ├── pajak_daerah_raw.csv           # Dataset mentah (76.205 baris)
-│   └── pajak_daerah_preprocessing/    # Output: train.csv, test.csv, preprocessor.joblib
+│   ├── Eksperimen_Dwi-Agni.ipynb       # Notebook eksperimen (EDA + eksperimen preprocessing)
+│   ├── automate_Dwi-Agni.py            # Skrip automate preprocessing
+│   └── pajak_daerah_preprocessing/     # Output: train.csv, test.csv, preprocessor.joblib
 ├── requirements.txt
 ├── README.md
 └── .gitignore

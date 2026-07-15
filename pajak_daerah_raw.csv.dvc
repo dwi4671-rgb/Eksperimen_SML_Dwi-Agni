@@ -1,0 +1,5 @@
+outs:
+- md5: 15684175028c67d5c62586eb85728e73
+  size: 8205930
+  hash: md5
+  path: pajak_daerah_raw.csv

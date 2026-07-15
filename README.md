@@ -8,7 +8,9 @@ pajak daerah akan **dibayar (paid)** atau **belum dibayar (unpaid)**.
 
 - **Sumber:** SIPD (Sistem Informasi Pajak Daerah) - sistem pemungutan pajak daerah.
 - **Ukuran:** 76.205 baris data tagihan pajak daerah.
-- **Berkas mentah:** `pajak_daerah_raw.csv`.
+- **Berkas mentah:** `pajak_daerah_raw.csv` — di-track via **DVC** (remote: DagsHub), bukan disimpan
+  langsung di git. Yang ada di repo adalah pointer `pajak_daerah_raw.csv.dvc`; jalankan `dvc pull`
+  untuk mengunduh data sesungguhnya (lihat bagian "Cara Menjalankan").
 - **Target:** kolom `label` (1 = dibayar/paid, 0 = belum dibayar/unpaid).
 
 ### Daftar Fitur
@@ -54,7 +56,19 @@ Preprocessor berupa `ColumnTransformer`:
 pip install -r requirements.txt
 ```
 
-### 2. Menjalankan notebook eksperimen
+### 2. Ambil dataset mentah (DVC)
+
+`pajak_daerah_raw.csv` ada di remote DagsHub, bukan di git. Konfigurasi kredensial lokal
+(sekali saja, tidak ikut ke-commit karena `.dvc/config.local` di-gitignore) lalu tarik datanya:
+
+```bash
+dvc remote modify origin --local auth basic
+dvc remote modify origin --local user dwi4671-rgb
+dvc remote modify origin --local password <DAGSHUB_TOKEN_ANDA>
+dvc pull
+```
+
+### 3. Menjalankan notebook eksperimen
 
 Buka notebook eksperimen (EDA + eksperimen preprocessing) di `preprocessing/Eksperimen_Dwi-Agni.ipynb`
 dengan Jupyter (notebook membaca `../pajak_daerah_raw.csv` relatif terhadap lokasinya):
@@ -63,7 +77,7 @@ dengan Jupyter (notebook membaca `../pajak_daerah_raw.csv` relatif terhadap loka
 jupyter notebook preprocessing/Eksperimen_Dwi-Agni.ipynb
 ```
 
-### 3. Menjalankan skrip automate preprocessing
+### 4. Menjalankan skrip automate preprocessing
 
 Skrip ini membaca `pajak_daerah_raw.csv`, melakukan pembersihan, split stratified
 (`test_size=0.2`, `random_state=42`), lalu menyimpan hasil ke folder
@@ -85,8 +99,10 @@ python preprocessing/automate_Dwi-Agni.py
 repo_eksperimen/
 ├── .github/
 │   └── workflows/
-│       └── preprocessing.yml          # CI: jalankan preprocessing + upload artifact
-├── pajak_daerah_raw.csv                # Dataset mentah (76.205 baris)
+│       └── preprocessing.yml          # CI: dvc pull -> preprocessing -> upload artifact
+├── .dvc/
+│   └── config                         # Remote DVC (url DagsHub, tanpa kredensial)
+├── pajak_daerah_raw.csv.dvc            # Pointer DVC ke dataset mentah (76.205 baris)
 ├── preprocessing/
 │   ├── Eksperimen_Dwi-Agni.ipynb       # Notebook eksperimen (EDA + eksperimen preprocessing)
 │   ├── automate_Dwi-Agni.py            # Skrip automate preprocessing
@@ -102,6 +118,9 @@ repo_eksperimen/
   pada setiap `push` dan bisa dipicu manual lewat `workflow_dispatch`.
 - Runner: `ubuntu-latest`, Python `3.12`.
 - Langkah CI: checkout -> setup Python -> install dependency
-  (`pandas==2.2.3`, `scikit-learn==1.5.2`, `numpy==1.26.4`, `joblib==1.4.2`) ->
-  jalankan `preprocessing/automate_Dwi-Agni.py` ->
+  (`pandas==2.2.3`, `scikit-learn==1.5.2`, `numpy==1.26.4`, `joblib==1.4.2`, `dvc`) ->
+  konfigurasi kredensial DVC dari secret `DAGSHUB_TOKEN` -> `dvc pull` (ambil `pajak_daerah_raw.csv`
+  dari DagsHub) -> jalankan `preprocessing/automate_Dwi-Agni.py` ->
   unggah folder `preprocessing/pajak_daerah_preprocessing` sebagai artifact `preprocessing-output`.
+- **Wajib:** tambahkan repository secret `DAGSHUB_TOKEN` (Settings -> Secrets and variables ->
+  Actions) berisi access token DagsHub akun `dwi4671-rgb`, kalau tidak langkah `dvc pull` akan gagal.
